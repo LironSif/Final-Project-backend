@@ -7,6 +7,22 @@ import connectDB from "./config/dbConnection.js";
 import dotenv from "dotenv"
 dotenv.config()
 
+import { fileURLToPath } from 'url';
+import path from 'path';
+import fs from 'fs';
+
+// Get the current file's directory
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Path to the uploads directory
+const uploadDir = path.join(__dirname, 'uploads');
+
+// Create the uploads directory if it does not exist
+if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir, { recursive: true });
+}
+
 
 const app = express();
 

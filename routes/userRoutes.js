@@ -1,7 +1,5 @@
-// Import the Express framework
-import express from 'express';
 
-// Import controller functions for handling user-related operations
+import express from 'express';
 import {
   createUser,
   getAllUsers,
@@ -9,8 +7,10 @@ import {
   updateUser,
   deleteUser,
   loginUser,
+  sendScreenShotToEmail,
   getMe
 } from "../controllers/userController.js";
+import {upload} from '../middleware/upload.js'
 
 // Import the protect middleware for route protection with JWT authentication
 import protect from '../middleware/authMiddleware.js';
@@ -40,6 +40,9 @@ router.put('/users',protect, updateUser);
 
 // DELETE route to delete a specific user by ID
 router.delete('/users/:id', deleteUser);
+
+
+router.post('/users/image', upload.single('image'), sendScreenShotToEmail);
 
 // Export the configured router for use in other files
 export default router;

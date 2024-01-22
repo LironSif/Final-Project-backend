@@ -1,7 +1,9 @@
 import User from '../models/user.js';
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs" 
-
+import NodeMailer from 'nodemailer'
+import fs from 'fs';
+import path from 'path';
 
 export const createUser = async (req, res) => {
     const {name, email, password, chemicals,shelfConfig } = req.body;
@@ -124,7 +126,64 @@ export const getAllUsers = async(req, res) =>{
     }
 };
 
+export const sendScreenShotToEmail = async (req, res) => {
+    // Ensure there's a file in the request
+    if (!req.file) {
+        return res.status(400).send('No file uploaded.');
+    }
 
+    // Assuming req.user.id contains the logged-in user's ID
+    const userId = req.body.userId;
+
+    try {
+        // Fetch the user's details from the database
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).send('User not found.');
+        }
+
+        console.log("Received request to send screenshot via email");
+        const filepath = req.file.path; // Path to the uploaded file
+
+        console.log("Setting up Nodemailer transport");
+        const transporter = NodeMailer.createTransport({
+            service: 'gmail',
+            auth: {
+                user: process.env.GMAIL_USER,
+                pass: process.env.GMAIL_PASSWORD
+            }
+        });
+
+        const mailOptions = {
+            from: process.env.GMAIL_USER,
+            to: user.email, // Use the logged-in user's email
+            subject: 'Webpage Screenshot',
+            text: 'Here is the screenshot.',
+            attachments: [{   
+                filename: req.file.originalname,
+                path: filepath
+            }]
+        };
+
+        console.log("Attempting to send email");
+        await transporter.sendMail(mailOptions);
+        console.log('Email sent successfully');
+        res.status(200).send('Email sent');
+
+    } catch (error) {
+        console.error('Error occurred:', error);
+        res.status(500).send('Error occurred');
+    } finally {
+        // Delete the temporary screenshot file
+        try {
+            console.log("Attempting to delete the temporary file");
+            fs.unlinkSync(filepath);
+            console.log('Temporary file deleted successfully');
+        } catch (unlinkError) {
+            console.error('Error deleting screenshot file:', unlinkError);
+        }
+    }
+};
 
 export const deleteUser = async (req, res) => {
     const {id} = req.params;
