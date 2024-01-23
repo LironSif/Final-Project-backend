@@ -8,7 +8,8 @@ import {
   deleteUser,
   loginUser,
   sendScreenShotToEmail,
-  getMe
+  getMe,
+  promptOpenAi
 } from "../controllers/userController.js";
 import {upload} from '../middleware/upload.js'
 
@@ -43,6 +44,7 @@ router.delete('/users/:id', deleteUser);
 
 
 router.post('/users/image', upload.single('image'), sendScreenShotToEmail);
+router.post('/users/ai', promptOpenAi);
 
 // Export the configured router for use in other files
 export default router;

@@ -3,7 +3,8 @@ import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs" 
 import NodeMailer from 'nodemailer'
 import fs from 'fs';
-import path from 'path';
+import getOpenAiInstance from "../openai.js";
+
 
 export const createUser = async (req, res) => {
     const {name, email, password, chemicals,shelfConfig } = req.body;
@@ -110,14 +111,23 @@ export const getAllUsers = async(req, res) =>{
  }
 
  export const updateUser = async (req, res) => {
-    const {userId} = req.body
+    const { userId, shelfConfig, chemicals } = req.body;
     try {
-        const chemicalsToUpdate = req.body.chemicals;
+        // Construct the update object
+        const updateData = {};
+        if (chemicals) updateData.chemicals = chemicals;
+        if (shelfConfig) updateData.shelfConfig = shelfConfig;
+
+        // Perform the update
         const updatedUser = await User.findByIdAndUpdate(
             userId,
-            { $set: { "chemicals": chemicalsToUpdate } },
+            { $set: updateData },
             { new: true }
         );
+
+        if (!updatedUser) {
+            return res.status(404).json({ error: 'User not found' });
+        }
 
         res.status(200).send(updatedUser);
     } catch (error) {
@@ -125,6 +135,7 @@ export const getAllUsers = async(req, res) =>{
         res.status(500).json({ error: 'Internal Server Error' });
     }
 };
+
 
 export const sendScreenShotToEmail = async (req, res) => {
     // Ensure there's a file in the request
@@ -221,3 +232,51 @@ export const deleteUser = async (req, res) => {
 // the authenticity of the information.
 //  The expiration time helps manage security by limiting the
 //   validity period of the token.
+
+export const promptOpenAi = async ( req,res) => {
+   const {prompt }= req.body
+   console.log(prompt)
+    const openai = getOpenAiInstance();
+    try {
+        const systemMessage = {
+            role: "system",
+            content: `You are a helpful assistant tasked with organizing information about storing chemicals on an 8-slot shelf, adhering to OSHA guidelines. Based on the details provided by the user about the chemicals, you need to suggest an arrangement for the shelf. Ensure that your recommendations adhere to safety and compatibility standards. For example, flammable substances should not be stored near oxidizers.
+          
+            Start by considering OSHA recommendations for chemical storage. Then, take into account any specific considerations for the chemicals provided by the user.
+          
+            Next, review the shelf structure, which consists of eight slots labeled from 'a' to 'd', each with a left and right compartment. Initially, all compartments are empty:
+          
+            Shelf Configuration:
+            - Slot a: Left - empty, Right - empty
+            - Slot b: Left - empty, Right - empty
+            - Slot c: Left - empty, Right - empty
+            - Slot d: Left - empty, Right - empty
+          
+            Conclude with a summary of the shelf arrangement, providing clear guidance on where to store each chemical within the provided shelf slot structure.`
+          };
+          
+
+        const response = await openai.chat.completions.create({
+            model: "gpt-4", // Make sure to use a valid model name
+            messages: [
+                systemMessage,
+                { role: "user", content:prompt},
+            ],
+            max_tokens: 250,
+            // Additional parameters can be uncommented and adjusted as needed
+            // temperature: 1,
+            // stop: ":",
+            // presence_penalty: 2,
+            // seed: 42,
+            // n: 2,
+        });
+
+        const assistantResponse = response.choices[0].message;
+        console.log("##########################################", assistantResponse.content);
+        res.send(assistantResponse.content)
+
+    } catch (error) {
+        console.log(error.message);
+        throw error; // It's better to throw the error so that the caller can handle it
+    }
+}

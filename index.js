@@ -1,5 +1,4 @@
 import express from 'express';
-import mongoose from 'mongoose';
 import cors from "cors";
 import userRoutes from "./routes/userRoutes.js"
 import {errorHandler}  from "./middleware/errorMiddleware.js";
