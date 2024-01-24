@@ -27,11 +27,11 @@ const userSchema = new mongoose.Schema({
         minlength:[8, "password must be at least 8 characters"]
     },
     chemicals: {
-        type: Object, // or a more specific schema if needed
+        type: Object, 
         required: true,
     },
     shelfConfig:{
-        type: Object, // or a more specific schema if needed
+        type: Object, 
     }
 }, {
     timestamps: true,

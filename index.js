@@ -37,7 +37,7 @@ app.use('/api/v1', userRoutes);
 // Error handler middleware
 app.use(errorHandler); 
 
-const PORT = process.env.PORT || 3000; // takes port from .env or just put 3000
+const PORT = process.env.PORT || 3000; 
 
 connectDB().then(()=>{
   app.listen(PORT, () => {

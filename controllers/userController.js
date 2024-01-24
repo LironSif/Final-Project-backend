@@ -138,12 +138,11 @@ export const getAllUsers = async(req, res) =>{
 
 
 export const sendScreenShotToEmail = async (req, res) => {
-    // Ensure there's a file in the request
+   
     if (!req.file) {
         return res.status(400).send('No file uploaded.');
     }
 
-    // Assuming req.user.id contains the logged-in user's ID
     const userId = req.body.userId;
 
     try {
@@ -167,7 +166,7 @@ export const sendScreenShotToEmail = async (req, res) => {
 
         const mailOptions = {
             from: process.env.GMAIL_USER,
-            to: user.email, // Use the logged-in user's email
+            to: user.email, 
             subject: 'Webpage Screenshot',
             text: 'Here is the screenshot.',
             attachments: [{   
@@ -185,7 +184,7 @@ export const sendScreenShotToEmail = async (req, res) => {
         console.error('Error occurred:', error);
         res.status(500).send('Error occurred');
     } finally {
-        // Delete the temporary screenshot file
+  
         try {
             console.log("Attempting to delete the temporary file");
             fs.unlinkSync(filepath);
@@ -213,25 +212,6 @@ export const deleteUser = async (req, res) => {
         expiresIn:"30d"
     })
  }
-
-
-// --- jwt.sign: This method is used to create a new JWT.
-// --- {id}: The payload of the JWT, which typically contains data
-//  you want to encode. In this case, you're including the user's ID.
-// --- process.env.JWT_SECRET: The secret key used to sign the JWT. This key
-//  should be kept secret and not exposed.
-//   It's stored in an environment variable for security reasons.
-// --- {expiresIn: "30d"}: This specifies the expiration time of the
-//  token. After 30 days, the token will no longer be valid, and
-//   the user will need to reauthenticate.
-
-
-// JWTs are used for authentication and authorization. They 
-// contain information about the user (in the payload), are 
-// signed with a secret key, and can be decoded to verify 
-// the authenticity of the information.
-//  The expiration time helps manage security by limiting the
-//   validity period of the token.
 
 export const promptOpenAi = async ( req,res) => {
    const {prompt }= req.body
@@ -264,6 +244,6 @@ export const promptOpenAi = async ( req,res) => {
 
     } catch (error) {
         console.log(error.message);
-        throw error; // It's better to throw the error so that the caller can handle it
+        throw error; 
     }
 }
