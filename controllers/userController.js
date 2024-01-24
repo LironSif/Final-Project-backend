@@ -240,21 +240,8 @@ export const promptOpenAi = async ( req,res) => {
     try {
         const systemMessage = {
             role: "system",
-            content: `You are a helpful assistant tasked with organizing information about storing chemicals on an 8-slot shelf, adhering to OSHA guidelines. Based on the details provided by the user about the chemicals, you need to suggest an arrangement for the shelf. Ensure that your recommendations adhere to safety and compatibility standards. For example, flammable substances should not be stored near oxidizers.
-          
-            Start by considering OSHA recommendations for chemical storage. Then, take into account any specific considerations for the chemicals provided by the user.
-          
-            Next, review the shelf structure, which consists of eight slots labeled from 'a' to 'd', each with a left and right compartment. Initially, all compartments are empty:
-          
-            Shelf Configuration:
-            - Slot a: Left - empty, Right - empty
-            - Slot b: Left - empty, Right - empty
-            - Slot c: Left - empty, Right - empty
-            - Slot d: Left - empty, Right - empty
-          
-            Conclude with a summary of the shelf arrangement, providing clear guidance on where to store each chemical within the provided shelf slot structure.`
-          };
-          
+            content: `You are a helpful assistant. Your task is to organize provided information about how to store chemicals on an 8-slot shelf, adhering to OSHA guidelines. The chemicals will be provided by the user. You need to suggest how to arrange the shelf, such as which chemicals should be placed above or below others. For example, flammable substances should not be stored near oxidizers. Please provide your recommendations based on these rules:`,
+        };
 
         const response = await openai.chat.completions.create({
             model: "gpt-4", // Make sure to use a valid model name
